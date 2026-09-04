@@ -1,0 +1,317 @@
+/* ===== AGENDAR ===== */
+
+/* ── FONDO GLOBAL DE LA PÁGINA ── */
+.agendar-page {
+  min-height: 100vh;
+  background: url('../imgs/fondo_6.jpg') center center / cover no-repeat fixed;
+  position: relative;
+}
+.agendar-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(10,8,6,0.82);
+  pointer-events: none;
+  z-index: 0;
+}
+.agendar-page > * { position: relative; z-index: 1; }
+
+/* ── HERO HEADER ── */
+.agendar-hero {
+  padding: 4.5rem clamp(2rem, 8vw, 6rem) 3.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.agendar-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 0.7rem;
+}
+
+.agendar-hero h1 {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 900;
+  margin-bottom: 0.6rem;
+  line-height: 1.1;
+}
+
+.agendar-sub {
+  font-size: 1.05rem;
+  color: rgba(240,237,232,0.6);
+  max-width: 480px;
+  line-height: 1.75;
+}
+
+/* ── CUERPO ── */
+.agendar-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 6rem;
+}
+
+/* ── FILTROS ── */
+.agendar-filtros {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.cat-filtro {
+  padding: 0.45rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  outline: none;
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+}
+.cat-filtro:hover  { color: var(--text); border-color: var(--accent); }
+.cat-filtro.active {
+  background: rgba(201,169,110,0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── GRID ── */
+.servicios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.srv-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 1rem;
+  padding: 5rem 0;
+}
+
+/* ── SKELETON ── */
+.srv-skeleton {
+  border-radius: 18px;
+  height: 240px;
+  background: linear-gradient(
+    90deg,
+    var(--surface) 25%,
+    var(--surface2) 50%,
+    var(--surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* ── CARD ── */
+.srv-agendar-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.6rem 1.7rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  position: relative;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.18s ease;
+  animation: cardIn 0.25s ease both;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* acento izquierdo al hover */
+.srv-agendar-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 15%; bottom: 15%;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.srv-agendar-card:hover {
+  border-color: rgba(201,169,110,0.4);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  transform: translateY(-3px);
+}
+.srv-agendar-card:hover::before { opacity: 1; }
+
+/* ── NOMBRE + PRECIO en la misma línea ── */
+.srv-agendar-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.srv-agendar-nombre {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.25;
+}
+
+.srv-agendar-precio {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--accent);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── DESCRIPCIÓN ── */
+.srv-agendar-desc {
+  font-size: 0.93rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  flex: 1;
+}
+
+/* ── PILLS META ── */
+.srv-agendar-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.srv-agendar-meta span {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.65rem;
+  border-radius: 6px;
+}
+
+/* ── BOTÓN ── */
+.btn-agendar {
+  width: 100%;
+  padding: 0.78rem;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.4px;
+  margin-top: auto;
+  transition: background 0.2s ease, transform 0.14s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 14px rgba(201,169,110,0.2);
+}
+.btn-agendar:hover  {
+  background: var(--accent-dark);
+  box-shadow: 0 5px 22px rgba(201,169,110,0.3);
+  transform: translateY(-1px);
+}
+.btn-agendar:active { transform: scale(0.97); }
+
+/* ── NO DISPONIBLE ── */
+.srv-no-disponible {
+  opacity: 0.5;
+}
+.srv-no-disponible:hover {
+  border-color: var(--border) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.srv-no-disponible:hover::before { opacity: 0 !important; }
+.srv-no-disponible .srv-agendar-precio { color: var(--text-muted); }
+
+.srv-no-disp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--danger);
+  background: rgba(224,82,82,0.07);
+  border: 1px solid rgba(224,82,82,0.2);
+  border-radius: 6px;
+  padding: 0.2rem 0.6rem;
+  width: fit-content;
+}
+
+.btn-agendar-disabled {
+  background: var(--surface2) !important;
+  color: var(--text-muted) !important;
+  cursor: not-allowed !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .agendar-hero { padding: 3.5rem 1.2rem 3rem; }
+  .agendar-main { padding: 2rem 1rem 4rem; }
+  .servicios-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 400px) {
+  .agendar-hero { padding: 2.5rem 1rem 2rem; }
+  .srv-agendar-top { flex-direction: column; gap: 0.4rem; }
+  .srv-agendar-precio { align-self: flex-start; }
+}
+
+/* ── MODAL ── */
+.modal-agendar-card { max-width: 380px; }
+.modal-agendar-card .modal-field input[type="date"] { color-scheme: dark; }
+
+.btn-loader {
+  display: none;
+  width: 13px; height: 13px;
+  border: 2px solid rgba(0,0,0,0.25);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+.btn-submit.loading .btn-loader { display: inline-block; }
+.btn-submit.loading .btn-text   { opacity: 0.7; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.modal-agendar-card .modal-field select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-family: inherit;
+  width: 100%;
+  color-scheme: dark;
+  transition: border-color var(--transition);
+}
+.modal-agendar-card .modal-field select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.modal-agendar-card .modal-field select option { background: var(--surface); }
+
+#modal-agendar {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

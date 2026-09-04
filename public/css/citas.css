@@ -1,0 +1,300 @@
+/* ===== MIS CITAS ===== */
+
+/* ── FONDO GLOBAL DE LA PÁGINA ── */
+.bg-fondo {
+  background: url('../imgs/fondo_7.jpg') center center / cover no-repeat fixed;
+  position: relative;
+}
+
+.bg-fondo::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    175deg,
+    rgba(0,0,0,0.82) 0%,
+    rgba(10,8,5,0.75) 55%,
+    rgba(201,169,110,0.06) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-fondo > * { position: relative; z-index: 1; }
+
+.citas-main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3.5rem 2rem 6rem;
+}
+
+/* ── HEADER ── */
+.citas-header {
+  margin-bottom: 3rem;
+}
+
+.citas-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: inline-block;
+  margin-bottom: 0.6rem;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 0.3rem;
+}
+
+.citas-header h1 {
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  margin-top: 0.8rem;
+  line-height: 1.1;
+}
+
+.citas-sub {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* ── FILTROS ── */
+.citas-filtros {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.cita-filtro {
+  padding: 0.5rem 1.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.cita-filtro:hover { color: var(--text); border-color: var(--accent); }
+.cita-filtro.active {
+  background: rgba(201,169,110,0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── LISTA ── */
+.citas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+/* ── SKELETON ── */
+.cita-skeleton {
+  height: 160px;
+  border-radius: 18px;
+  background: linear-gradient(
+    90deg,
+    var(--surface) 25%,
+    var(--surface2) 50%,
+    var(--surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* ── CARD ── */
+.cita-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+  animation: fadeInUp 0.25s ease;
+}
+
+.cita-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── CARD TOP (acento dorado) ── */
+.cita-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.6rem 1.8rem 1.4rem;
+  border-left: 4px solid var(--accent);
+  background: linear-gradient(135deg, rgba(201,169,110,0.07) 0%, transparent 60%);
+}
+
+.cita-info { display: flex; flex-direction: column; gap: 0.3rem; }
+
+.cita-servicio {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.cita-fecha-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: 0.6rem;
+  margin-bottom: 0.15rem;
+}
+
+.cita-fecha {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cita-fecha::before {
+  content: "🕐";
+  font-size: 1rem;
+}
+
+/* ── BADGE ESTADO ── */
+.cita-badge {
+  flex-shrink: 0;
+  font-size: 0.88rem;
+  font-weight: 800;
+  padding: 0.4rem 1.1rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.cita-badge--pendiente  { background: rgba(201,169,110,0.14); color: var(--accent);  border: 1px solid rgba(201,169,110,0.4); }
+.cita-badge--confirmado { background: rgba(91,143,249,0.12);  color: #7aa8fb;        border: 1px solid rgba(91,143,249,0.35); }
+.cita-badge--en_proceso { background: rgba(255,193,7,0.12);   color: #f5c842;        border: 1px solid rgba(255,193,7,0.35);  }
+.cita-badge--completado { background: rgba(92,184,92,0.12);   color: #6bcf6b;        border: 1px solid rgba(92,184,92,0.35);  }
+.cita-badge--cancelado  { background: rgba(224,92,92,0.12);   color: var(--danger);  border: 1px solid rgba(224,92,92,0.35);  }
+
+/* ── DETALLES INFERIORES ── */
+.cita-detalles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+
+.cita-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1.1rem 1.8rem;
+  flex: 1 1 140px;
+  border-right: 1px solid var(--border);
+}
+
+.cita-meta-item:last-child { border-right: none; }
+
+.cita-meta-item--full {
+  flex-basis: 100%;
+  border-right: none;
+  border-top: 1px solid var(--border);
+}
+
+.cita-meta-key {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+}
+
+.cita-meta-val {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.cita-precio {
+  color: var(--accent);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.cita-desc-val {
+  font-size: 0.97rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ── EMPTY STATE ── */
+.citas-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  gap: 0.8rem;
+}
+
+.citas-empty-icon { font-size: 3rem; }
+.citas-empty p    { font-size: 1.1rem; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .citas-main { padding: 2rem 1rem 4rem; }
+
+  .cita-card-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cita-badge { align-self: flex-start; }
+
+  .cita-meta-item {
+    padding: 1rem 1.2rem;
+    flex: 1 1 120px;
+  }
+}
+
+@media (max-width: 400px) {
+  .citas-main { padding: 1.5rem 0.8rem 3rem; }
+
+  .cita-card-top { padding: 1.2rem 1.2rem 1rem; }
+
+  .cita-detalles { flex-direction: column; }
+  .cita-meta-item {
+    flex-basis: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .cita-meta-item:last-child { border-bottom: none; }
+
+  .citas-filtros { gap: 0.3rem; }
+  .cita-filtro  { font-size: 0.85rem; padding: 0.4rem 0.85rem; }
+}

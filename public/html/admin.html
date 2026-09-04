@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin | OnliStyle</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+  <nav>
+    <span class="nav-brand">ONLISTYLE</span>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/agendar">Agendar cita</a></li>
+      <li><a href="/nosotros">Nosotros</a></li>
+      <li><a href="/perfil">Mi perfil</a></li>
+      <li><a href="/citas">Mis citas</a></li>
+      <li id="nav-panel-empleado" style="display:none"><a href="/empleado">Panel empleado</a></li>
+      <li id="nav-citas-empleado" style="display:none"><a href="/citas_empleado">Citas agendadas</a></li>
+      <li><button id="btn-logout">Cerrar sesión</button></li>
+    </ul>
+  </nav>
+
+  <div id="toast-container"></div>
+
+  <main class="admin-layout">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="admin-sidebar">
+      <div class="admin-brand-tag">Admin</div>
+      <p class="admin-nombre" id="admin-nombre">—</p>
+
+      <nav class="admin-nav" role="tablist">
+        <button class="admin-nav-item active" data-tab="usuarios">Usuarios</button>
+        <button class="admin-nav-item"        data-tab="categorias">Categorías</button>
+        <button class="admin-nav-item"        data-tab="servicios">Servicios</button>
+      </nav>
+
+      <a href="/" class="admin-back">← Volver al inicio</a>
+    </aside>
+
+    <!-- ── PANEL ── -->
+    <section class="admin-panel">
+
+      <!-- ══ TAB: USUARIOS ══ -->
+      <div class="admin-tab active" id="tab-usuarios">
+        <div class="admin-tab-header">
+          <p class="admin-label">Panel de administración</p>
+          <h2>Usuarios registrados</h2>
+          <p class="admin-desc">Lista de todos los usuarios de la plataforma.</p>
+        </div>
+
+        <div class="admin-filtros">
+          <button class="btn-filtro active" data-filtro="todos">Todos</button>
+          <button class="btn-filtro" data-filtro="empleados">Empleados</button>
+          <button class="btn-filtro" data-filtro="usuarios">Usuarios</button>
+          <button class="btn-filtro" data-filtro="admins">Administradores</button>
+        </div>
+
+        <!-- Tú llenas esta tabla con fetch GET /admin/usuarios -->
+        <div class="admin-table-wrap">
+          <table class="admin-table" id="tabla-usuarios">
+            <thead>
+              <tr>
+                <th>Cédula</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Rol</th>
+                <th>Activo</th>
+                <th>Registro</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-usuarios">
+              <tr><td colspan="7" class="tabla-empty">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ TAB: CATEGORÍAS ══ -->
+      <div class="admin-tab" id="tab-categorias">
+        <div class="admin-tab-header">
+          <p class="admin-label">Panel de administración</p>
+          <h2>Categorías de servicios</h2>
+          <p class="admin-desc">Gestiona las categorías disponibles para los empleados.</p>
+        </div>
+
+        <!-- Formulario crear categoría -->
+        <div class="admin-form-card">
+          <p class="admin-form-title">Nueva categoría</p>
+          <form id="form-categoria" autocomplete="off">
+            <div class="admin-form-row">
+
+              <div class="admin-field">
+                <label for="cat-nombre">Nombre</label>
+                <!-- categorias_servicios.nombre VARCHAR(100) -->
+                <input type="text" id="cat-nombre" name="nombre"
+                       maxlength="100" required placeholder="Ej: Colorimetría">
+              </div>
+
+              <div class="admin-field">
+                <label for="cat-icono">Icono <span class="admin-hint">(opcional)</span></label>
+                <!-- categorias_servicios.icono VARCHAR(255) -->
+                <input type="text" id="cat-icono" name="icono"
+                       maxlength="255" placeholder="Ej: scissors">
+              </div>
+
+              <div class="admin-field admin-field--full">
+                <label for="cat-descripcion">Descripción <span class="admin-hint">(opcional)</span></label>
+                <!-- categorias_servicios.descripcion TEXT -->
+                <textarea id="cat-descripcion" name="descripcion"
+                          rows="2" maxlength="1000"
+                          placeholder="Describe brevemente esta categoría..."></textarea>
+              </div>
+
+            </div>
+            <button type="submit" class="btn-admin-save" id="btn-cat-save">
+              <span class="btn-text">Crear categoría</span>
+              <span class="btn-loader" aria-hidden="true"></span>
+            </button>
+          </form>
+        </div>
+
+        <div class="admin-table-wrap" style="margin-top:2rem">
+          <table class="admin-table" id="tabla-categorias">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Icono</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-categorias">
+              <tr><td colspan="5" class="tabla-empty">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ TAB: SERVICIOS ══ -->
+      <div class="admin-tab" id="tab-servicios">
+        <div class="admin-tab-header">
+          <p class="admin-label">Panel de administración</p>
+          <h2>Servicios de empleados</h2>
+          <p class="admin-desc">Todos los servicios publicados por los empleados.</p>
+        </div>
+
+        
+        <div class="admin-table-wrap">
+          <table class="admin-table" id="tabla-servicios">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Empleado</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Modalidad</th>
+                <th>Disponible</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-servicios">
+              <tr><td colspan="7" class="tabla-empty">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="../js/toast.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/nav-icons.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const token  = localStorage.getItem("token");
+      const rol    = localStorage.getItem("rol")    ?? "";
+      const nombre = localStorage.getItem("nombre") ?? "";
+
+      if (!token || rol.toLowerCase() !== "admin") {
+        window.location.href = "/";
+        return;
+      }
+
+      document.getElementById("admin-nombre").textContent = nombre;
+
+      // Nav dinámico
+      const panelEmp = document.getElementById("nav-panel-empleado");
+      const citasEmp = document.getElementById("nav-citas-empleado");
+      if (panelEmp && rol.toLowerCase() === "empleado") panelEmp.style.display = "list-item";
+      if (citasEmp && rol.toLowerCase() === "empleado") citasEmp.style.display = "list-item";
+
+      // Cargar datos al iniciar
+      cargarCategorias();
+      cargarUsuarios();
+      cargarServicios();
+    });
+
+    // ── Cargar y renderizar usuarios ──
+    async function cargarUsuarios(filtro = "todos") {
+      const tbody = document.getElementById("tbody-usuarios");
+      tbody.innerHTML = `<tr><td colspan="7" class="tabla-empty">Cargando...</td></tr>`;
+
+      try {
+        const res  = await apiFetch("/admin/users");
+        const data = await res.json();
+        let usuarios = data.usuarios ?? [];
+
+        if (filtro === "usuarios") {
+          usuarios = usuarios.filter(u => u.rol.toLowerCase() === "usuario");
+        } else if (filtro === "empleados") {
+          usuarios = usuarios.filter(u => u.rol.toLowerCase() === "empleado");
+        } else if (filtro === "admins") {
+          usuarios = usuarios.filter(u => u.rol.toLowerCase() !== "empleado" && u.rol.toLowerCase() !== "usuario");
+        }
+
+        if (usuarios.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="tabla-empty">No hay registros.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = usuarios.map(u => {
+          const fecha = u.fecha_registro ? new Date(u.fecha_registro).toLocaleDateString("es-CO") : "—";
+          const rolClass = u.rol.toLowerCase() === "admin" ? "badge-rol--admin"
+                         : u.rol.toLowerCase() === "empleado" ? "badge-rol--empleado" : "";
+          const activoClass = u.activo ? "badge-activo--si" : "badge-activo--no";
+          const activoText  = u.activo ? "Sí" : "No";
+
+          return `
+            <tr>
+              <td data-label="Cédula">${u.id}</td>
+              <td data-label="Nombre">${u.nombre}</td>
+              <td data-label="Correo">${u.correo}</td>
+              <td data-label="Teléfono">${u.telefono ?? "—"}</td>
+              <td data-label="Rol"><span class="badge-rol ${rolClass}">${u.rol}</span></td>
+              <td data-label="Activo"><span class="badge-activo ${activoClass}">${activoText}</span></td>
+              <td data-label="Registro">${fecha}</td>
+            </tr>
+          `;
+        }).join("");
+
+      } catch (e) {
+        if (e?.name === "TokenError") return;
+        tbody.innerHTML = `<tr><td colspan="7" class="tabla-empty">Error al cargar usuarios.</td></tr>`;
+      }
+    }
+
+    // ── Cargar y renderizar categorías ──
+    async function cargarCategorias() {
+      const tbody = document.getElementById("tbody-categorias");
+      try {
+        const res  = await fetch("/categorias");
+        const data = await res.json();
+        const cats = data.categorias;
+
+        if (!cats || cats.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="tabla-empty">No hay categorías registradas.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = cats.map(c => `
+          <tr>
+            <td data-label="ID">${c.id}</td>
+            <td data-label="Nombre">${c.nombre}</td>
+            <td data-label="Descripción">${c.descripcion ?? "—"}</td>
+            <td data-label="Icono">${c.icono ?? "—"}</td>
+            <td data-label="Acción">
+              <button class="btn-eliminar-cat" data-id="${c.id}">Eliminar</button>
+            </td>
+          </tr>
+        `).join("");
+
+      } catch {
+        tbody.innerHTML = `<tr><td colspan="5" class="tabla-empty">Error al cargar categorías.</td></tr>`;
+      }
+    }
+
+    // ── Cargar y renderizar servicios ──
+    async function cargarServicios() {
+      const tbody = document.getElementById("tbody-servicios");
+      try {
+        const res  = await fetch("/servicios");
+        const data = await res.json();
+        const servicios = data.servicios ?? [];
+
+        if (servicios.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="tabla-empty">No hay servicios registrados.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = servicios.map(s => {
+          const disp = s.disponible ? `<span class="badge-activo badge-activo--si">Sí</span>`
+                                    : `<span class="badge-activo badge-activo--no">No</span>`;
+          return `
+            <tr>
+              <td data-label="ID">${s.id}</td>
+              <td data-label="Empleado">${s.id_empleado}</td>
+              <td data-label="Nombre">${s.nombre}</td>
+              <td data-label="Categoría">${s.id_categoria}</td>
+              <td data-label="Precio">$${s.precio?.toLocaleString("es-CO") ?? "—"}</td>
+              <td data-label="Modalidad">${s.modalidad ?? "—"}</td>
+              <td data-label="Disponible">${disp}</td>
+              <td data-label="Acción"><button class="btn-eliminar-cat" data-id="${s.id}">Eliminar</button></td>
+            </tr>
+          `;
+        }).join("");
+
+        // Delegación eliminar servicio
+        tbody.querySelectorAll(".btn-eliminar-cat").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            btn.disabled = true;
+            btn.textContent = "...";
+            try {
+              const res  = await apiFetch(`/service/${btn.dataset.id}`, {
+                method: "DELETE"
+              });
+              const data = await res.json();
+              showToast(data.msg, res.ok ? "success" : "error");
+              if (res.ok) cargarServicios();
+            } catch {
+              showToast("Error de conexión.", "error");
+              btn.disabled = false;
+              btn.textContent = "Eliminar";
+            }
+          });
+        });
+
+      } catch {
+        tbody.innerHTML = `<tr><td colspan="7" class="tabla-empty">Error al cargar servicios.</td></tr>`;
+      }
+    }
+
+    // ── Filtros de usuarios ──
+    document.querySelectorAll(".btn-filtro").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".btn-filtro").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        cargarUsuarios(btn.dataset.filtro);
+      });
+    });
+
+    // ── Crear categoría ──
+    // El fetch lo conectas tú al endpoint POST /admin/categoria
+    document.getElementById("form-categoria").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const btn  = document.getElementById("btn-cat-save");
+
+      const datos = {
+        nombre:      form.nombre.value,
+        descripcion: form.descripcion.value,
+        icono:       form.icono.value
+      };
+
+      btn.disabled = true;
+      btn.classList.add("loading");
+
+      try {
+        const res  = await apiFetch("/admin/categorias", {
+          method: "POST",
+          body: JSON.stringify(datos)
+        });
+        const data = await res.json();
+        showToast(data.msg, res.ok ? "success" : "error");
+        if (res.ok) { form.reset(); cargarCategorias(); }
+      } catch (e) {
+        if (e?.name === "TokenError") return;
+        showToast("Error de conexión. Intenta de nuevo.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove("loading");
+      }
+    });
+
+    // ── Eliminar categoría (delegado en tbody) ──
+    document.getElementById("tbody-categorias").addEventListener("click", async (e) => {
+      const btn = e.target.closest(".btn-eliminar-cat");
+      if (!btn) return;
+      const id = btn.dataset.id;
+
+      try {
+        const res  = await apiFetch(`/admin/categorias/${id}`, {
+          method: "DELETE"
+        });
+        const data = await res.json();
+        showToast(data.msg, res.ok ? "success" : "error");
+        if (res.ok) cargarCategorias();
+      } catch (e) {
+        if (e?.name === "TokenError") return;
+        showToast("Error de conexión.", "error");
+      }
+    });
+
+    // ── Tabs ──
+    document.querySelectorAll(".admin-nav-item").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".admin-nav-item").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    // ── Cerrar sesión ──
+    document.getElementById("btn-logout").addEventListener("click", () => {
+      localStorage.clear();
+      showToast("Sesión cerrada.", "info");
+      setTimeout(() => window.location.href = "/", 1200);
+    });
+
+    // ── Hamburguesa ──
+    const toggle   = document.getElementById("nav-toggle");
+    const navLinks = document.getElementById("nav-links");
+    toggle.addEventListener("click", () => {
+      const open = navLinks.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open);
+    });
+    navLinks.querySelectorAll("a, button").forEach(el => {
+      el.addEventListener("click", () => {
+        navLinks.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", false);
+      });
+    });
+  </script>
+</body>
+</html>

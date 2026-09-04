@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agendar | OnliStyle</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/agendar.css">
+</head>
+<body>
+
+  <nav>
+    <span class="nav-brand">ONLISTYLE</span>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/nosotros">Nosotros</a></li>
+      <li><a href="/agendar">Agendar cita</a></li>
+      <li id="nav-perfil-item" style="display:none"><a href="/perfil">Mi perfil</a></li>
+      <li id="nav-citas-item" style="display:none"><a href="/citas">Mis citas</a></li>
+      <li id="nav-panel-empleado" style="display:none"><a href="/empleado">Panel empleado</a></li>
+      <li id="nav-citas-empleado" style="display:none"><a href="/citas_empleado">Citas agendadas</a></li>
+      <li id="nav-panel-admin" style="display:none"><a href="/admin">Panel admin</a></li>
+      <li id="nav-login-item"><a href="/login">Iniciar sesión</a></li>
+      <li id="nav-register-item"><a href="/register">Registrarme</a></li>
+      <li id="nav-logout-item" style="display:none">
+        <button id="btn-logout">Cerrar sesión</button>
+      </li>
+    </ul>
+  </nav>
+
+  <div id="toast-container"></div>
+
+  <div class="agendar-page">
+
+    <!-- ── HERO ── -->
+    <div class="agendar-hero">
+      <p class="agendar-label">Servicios disponibles</p>
+      <h1>¿Qué servicio necesitas hoy?</h1>
+      <p class="agendar-sub">Explora los servicios disponibles y agenda con el profesional que prefieras.</p>
+    </div>
+
+    <main class="agendar-main">
+
+      <!-- ── FILTRO POR CATEGORÍA ── -->
+      <div class="agendar-filtros" id="filtros-categorias">
+        <button class="cat-filtro active" data-cat="todos">Todos</button>
+      </div>
+
+      <!-- ── GRID DE SERVICIOS ── -->
+      <div class="servicios-grid" id="servicios-grid">
+        <div class="srv-skeleton"></div>
+        <div class="srv-skeleton"></div>
+        <div class="srv-skeleton"></div>
+        <div class="srv-skeleton"></div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Modal agendar -->
+  <div id="modal-agendar" style="display:none" role="dialog" aria-modal="true">
+    <div class="modal-overlay" onclick="cerrarModalAgendar()"></div>
+    <div class="modal-card modal-agendar-card">
+      <div class="modal-header">
+        <h3 id="modal-agendar-titulo">Agendar servicio</h3>
+        <p id="modal-agendar-sub">Selecciona el día y la hora para tu cita.</p>
+      </div>
+
+      <form id="form-agendar" autocomplete="off">
+        <input type="hidden" id="agendar-servicio-id" name="servicio_id">
+
+        <div class="modal-field">
+          <label for="agendar-fecha">Fecha</label>
+          <input type="date" id="agendar-fecha" name="fecha" required>
+        </div>
+
+        <div class="modal-field">
+          <label for="agendar-hora">Hora</label>
+          <select id="agendar-hora" name="hora" required>
+            <option value="" disabled selected>Selecciona una hora</option>
+          </select>
+        </div>
+
+        <div class="modal-field">
+          <label for="agendar-direccion">Dirección <span style="font-size:0.8rem;color:var(--text-muted);font-weight:400">(donde recibirás el servicio)</span></label>
+          <input type="text" id="agendar-direccion" name="direccion"
+                 maxlength="255" required placeholder="Ej: Calle 10 #5-32, Bogotá">
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-submit" id="btn-confirmar-agenda">
+            <span class="btn-text">Confirmar cita</span>
+            <span class="btn-loader" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="btn-hero secondary" onclick="cerrarModalAgendar()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/toast.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/nav-icons.js"></script>
+  <script>
+    // Todos los servicios cargados
+    let todosLosServicios = [];
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const token = localStorage.getItem("token");
+
+      if (token) {
+        document.getElementById("nav-perfil-item").style.display = "list-item";
+        document.getElementById("nav-citas-item").style.display  = "list-item";
+        document.getElementById("nav-login-item").style.display  = "none";
+        document.getElementById("nav-register-item").style.display = "none";
+        document.getElementById("nav-logout-item").style.display = "list-item";
+        const rol = (localStorage.getItem("rol") ?? "").toLowerCase();
+        const panelEmp   = document.getElementById("nav-panel-empleado");
+        const citasEmp   = document.getElementById("nav-citas-empleado");
+        const panelAdmin = document.getElementById("nav-panel-admin");
+        if (panelEmp   && rol === "empleado") panelEmp.style.display   = "list-item";
+        if (citasEmp   && rol === "empleado") citasEmp.style.display   = "list-item";
+        if (panelAdmin && rol === "admin")    panelAdmin.style.display  = "list-item";
+      }
+
+      await Promise.all([cargarCategoriasFiltro(), cargarServicios()]);
+    });
+
+    // ── Cargar categorías para el filtro ──
+    async function cargarCategoriasFiltro() {
+      try {
+        const res  = await fetch("/categorias");
+        const data = await res.json();
+        const cats = data.categorias ?? [];
+        const contenedor = document.getElementById("filtros-categorias");
+
+        cats.forEach(c => {
+          const btn = document.createElement("button");
+          btn.className = "cat-filtro";
+          btn.dataset.cat = c.id;
+          btn.textContent = c.nombre;
+          contenedor.appendChild(btn);
+        });
+
+        contenedor.querySelectorAll(".cat-filtro").forEach(btn => {
+          btn.addEventListener("click", () => {
+            contenedor.querySelectorAll(".cat-filtro").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            filtrarServicios(btn.dataset.cat);
+          });
+        });
+
+      } catch { /* silencioso */ }
+    }
+
+    // ── Cargar servicios disponibles ──
+    async function cargarServicios() {
+      const grid = document.getElementById("servicios-grid");
+      try {
+        const res  = await fetch("/servicios");
+        const data = await res.json();
+        todosLosServicios = data.servicios ?? [];
+        renderServicios(todosLosServicios);
+      } catch {
+        grid.innerHTML = `<p class="srv-empty">Error al cargar los servicios.</p>`;
+      }
+    }
+
+    // ── Filtrar por categoría ──
+    function filtrarServicios(cat) {
+      if (cat === "todos") {
+        renderServicios(todosLosServicios);
+      } else {
+        renderServicios(todosLosServicios.filter(s => String(s.id_categoria) === String(cat)));
+      }
+    }
+
+    // ── Renderizar cards ──
+    function renderServicios(lista) {
+      const grid = document.getElementById("servicios-grid");
+
+      if (lista.length === 0) {
+        grid.innerHTML = `<p class="srv-empty">No hay servicios disponibles en esta categoría.</p>`;
+        return;
+      }
+
+      grid.innerHTML = lista.map(s => {
+        const disponible = s.disponible === 1 || s.disponible === true;
+        return `
+        <div class="srv-agendar-card ${!disponible ? "srv-no-disponible" : ""}">
+          <div class="srv-agendar-top">
+            <span class="srv-agendar-nombre">${s.nombre}</span>
+            <span class="srv-agendar-precio">$${s.precio?.toLocaleString("es-CO") ?? "—"}</span>
+          </div>
+          <p class="srv-agendar-desc">${s.descripcion ?? "Sin descripción"}</p>
+          <div class="srv-agendar-meta">
+            ${s.duracion_estimada ? `<span>${s.duracion_estimada} min</span>` : ""}
+            ${s.modalidad ? `<span>${s.modalidad}</span>` : ""}
+            ${s.punto_fisico && s.punto_fisico !== "Sin punto físico" ? `<span>${s.punto_fisico}</span>` : ""}
+          </div>
+          ${!disponible
+            ? `<div class="srv-no-disp-badge">✕ No disponible</div>
+               <button class="btn-agendar btn-agendar-disabled" disabled>No disponible</button>`
+            : `<button class="btn-agendar" data-id="${s.id}" data-nombre="${s.nombre}">Agendar cita</button>`
+          }
+        </div>`}).join("");
+
+      // Delegación de eventos en los botones agendar
+      grid.querySelectorAll(".btn-agendar").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            showToast("Debes iniciar sesión para agendar.", "error");
+            setTimeout(() => window.location.href = "/login", 1400);
+            return;
+          }
+          abrirModalAgendar(btn.dataset.id, btn.dataset.nombre);
+        });
+      });
+    }
+
+    // ── Modal agendar ──
+    function abrirModalAgendar(servicioId, nombre) {
+      document.getElementById("agendar-servicio-id").value = servicioId;
+      document.getElementById("modal-agendar-titulo").textContent = nombre;
+
+      const hoy = new Date().toISOString().split("T")[0];
+      document.getElementById("agendar-fecha").min   = hoy;
+      document.getElementById("agendar-fecha").value = "";
+
+      const select = document.getElementById("agendar-hora");
+      select.innerHTML = `<option value="" disabled selected>Selecciona una hora</option>`;
+
+      for (let h = 6; h <= 18; h++) {
+        for (let m = 0; m < 60; m += 30) {
+          if (h === 18 && m > 0) break;
+          const hh   = String(h).padStart(2, "0");
+          const mm   = String(m).padStart(2, "0");
+          const val  = `${hh}:${mm}`;
+          const ampm = h < 12 ? "am" : "pm";
+          const h12  = h > 12 ? h - 12 : h === 0 ? 12 : h;
+          select.innerHTML += `<option value="${val}">${h12}:${mm} ${ampm}</option>`;
+        }
+      }
+
+      document.getElementById("modal-agendar").style.display = "flex";
+    }
+
+    function cerrarModalAgendar() {
+      document.getElementById("modal-agendar").style.display = "none";
+      document.getElementById("form-agendar").reset();
+    }
+
+    document.getElementById("form-agendar").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const btn  = document.getElementById("btn-confirmar-agenda");
+
+      const fecha      = form.fecha.value;
+      const hora       = form.hora.value;
+      const servicioId = form.servicio_id.value;
+
+      if (!fecha || !hora) {
+        showToast("Selecciona fecha y hora.", "error");
+        btn.disabled = false;
+        return;
+      }
+
+      const datos = {
+        servicio_id:  Number(servicioId),
+        direccion:    form.direccion.value,
+        fecha_inicio: new Date(`${fecha}T${hora}:00`).toISOString()
+      };
+
+      btn.disabled = true;
+      btn.classList.add("loading");
+
+      try {
+        const res  = await apiFetch("/agendar", {
+          method: "POST",
+          body: JSON.stringify(datos)
+        });
+        const data = await res.json();
+        showToast(data.msg, res.ok ? "success" : "error");
+
+        if (res.ok) cerrarModalAgendar();
+      } catch (e) {
+        if (e?.name === "TokenError") return;
+        showToast("Error de conexión. Intenta de nuevo.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove("loading");
+      }
+    });
+
+    // ── Cerrar sesión ──
+    document.getElementById("btn-logout").addEventListener("click", () => {
+      localStorage.clear();
+      showToast("Sesión cerrada.", "info");
+      setTimeout(() => window.location.href = "/", 1200);
+    });
+
+    // ── Hamburguesa ──
+    const toggle   = document.getElementById("nav-toggle");
+    const navLinks = document.getElementById("nav-links");
+    toggle.addEventListener("click", () => {
+      const open = navLinks.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open);
+    });
+    navLinks.querySelectorAll("a, button").forEach(el => {
+      el.addEventListener("click", () => {
+        navLinks.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", false);
+      });
+    });
+
+    // ── Link activo en nav ──
+    const path = window.location.pathname;
+    document.querySelectorAll(".nav-links li a").forEach(a => {
+      const href = a.getAttribute("href");
+      if (href && href !== "#" && !a.classList.contains("btn-accent") && !a.classList.contains("btn-outline")) {
+        if (path === href || (href !== "/" && path.startsWith(href)))
+          a.classList.add("nav-active");
+      }
+    });
+  </script>
+</body>
+</html>

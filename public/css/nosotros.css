@@ -1,0 +1,198 @@
+/* ===== NOSOTROS — estilos específicos ===== */
+
+.nos-tag {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.4rem;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 0.3rem;
+}
+.nos-tag--dark { color: #000; opacity: 0.5; }
+
+/* ── HERO ── */
+.nos-hero {
+  background: url('../imgs/fondo_2.jpg') center center / cover no-repeat;
+  align-items: flex-start;
+  padding: 5rem clamp(2rem, 12vw, 14rem);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+/* overlay oscuro para legibilidad */
+.nos-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(10,8,6,0.93) 0%,
+    rgba(10,8,6,0.82) 60%,
+    rgba(201,169,110,0.05) 100%
+  );
+  pointer-events: none;
+}
+
+.nos-hero-inner { position: relative; z-index: 1; max-width: 700px; }
+
+.nos-hero h1 {
+  font-size: clamp(2.6rem, 6vw, 5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+.nos-hero h1 span { color: var(--accent); }
+.nos-hero p {
+  font-size: clamp(1.3rem, 2.2vw, 1.65rem);
+  color: var(--text-muted);
+  max-width: 560px;
+  line-height: 1.85;
+  font-weight: 400;
+}
+
+/* ── VALORES ── */
+.nos-valores {
+  background: url('../imgs/fondo_5.jpg') center center / cover no-repeat;
+  position: relative;
+}
+.nos-valores::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(20,20,22,0.93);
+  pointer-events: none;
+}
+.nos-valores > * { position: relative; z-index: 1; }
+
+.nos-section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.nos-section-header h2 {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 800;
+}
+.nos-section-header--light h2 { color: #000; }
+.nos-section-header--light p  { color: rgba(0,0,0,0.6); margin-top: 0.6rem; font-size: 1.1rem; }
+
+.valores-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.valor-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: border-color var(--transition), transform var(--transition);
+}
+.valor-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+}
+.valor-icon  { font-size: 2rem; }
+.valor-card h3 { font-size: 1.3rem; font-weight: 700; }
+.valor-card p  { font-size: 1.05rem; color: var(--text-muted); line-height: 1.7; }
+
+/* ── CONTACTO + FOOTER ── */
+.nos-footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.nos-footer-top {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 3rem;
+  padding: 3rem clamp(2rem, 8vw, 6rem);
+  border-bottom: 1px solid var(--border);
+}
+
+.nos-footer-brand .nav-brand {
+  display: block;
+  margin-bottom: 0.8rem;
+}
+.nos-footer-brand p {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  max-width: 240px;
+}
+
+.nos-footer-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+.nos-footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.nos-footer-link {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.93rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.nos-footer-link:hover { color: var(--accent); opacity: 1; }
+.nos-footer-link svg   { flex-shrink: 0; opacity: 0.6; }
+.nos-footer-horario    { cursor: default; }
+.nos-footer-horario:hover { color: var(--text-muted); }
+
+.nos-footer-bottom {
+  padding: 1.2rem clamp(2rem, 8vw, 6rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nos-footer-bottom p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .valores-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .nos-hero { align-items: center; text-align: center; padding: 5rem 2rem; }
+  .nos-hero p { margin: 0 auto; }
+  .nos-footer-top {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 2.5rem 1.5rem;
+  }
+  .nos-footer-brand { grid-column: 1 / -1; }
+  .nos-footer-bottom { padding: 1rem 1.5rem; flex-direction: column; gap: 0.4rem; text-align: center; }
+  .nos-section-header { padding: 0 1.5rem; }
+}
+
+@media (max-width: 480px) {
+  .valores-grid { grid-template-columns: 1fr; }
+  .nos-hero h1 { font-size: clamp(2rem, 9vw, 2.8rem); }
+  .nos-footer-top { grid-template-columns: 1fr; padding: 2rem 1.2rem; }
+  .nos-footer-bottom { padding: 1rem 1.2rem; }
+  .valor-card { padding: 1.4rem 1.2rem; }
+}

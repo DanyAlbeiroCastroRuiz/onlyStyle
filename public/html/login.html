@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión | OnliStyle</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+  <nav>
+    <span class="nav-brand">ONLISTYLE</span>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/agendar">Agendar cita</a></li>
+      <li><a href="/register">Registrarme</a></li>
+    </ul>
+  </nav>
+
+  <div id="toast-container"></div>
+
+  <div class="form-wrapper">
+    <div class="form-card">
+      <h2>INICIA SESIÓN</h2>
+
+      <form id="form_session">
+        <div class="form-group">
+          <label for="correo">Correo</label>
+          <input type="email" id="correo" name="correo" placeholder="correo@ejemplo.com" maxlength="100" required>
+        </div>
+
+        <div class="form-group">
+          <label for="contrasena">Contraseña</label>
+          <input type="password" id="contrasena" name="contrasena" placeholder="••••••••" maxlength="255" required>
+        </div>
+
+        <button type="submit" class="btn-submit">ENTRAR</button>
+      </form>
+
+      <div class="form-footer">
+        <a href="/">Inicio</a>
+        <a href="/register">Crear cuenta</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/toast.js"></script>
+  <script src="../js/nav-icons.js"></script>
+  <script>
+    // ── Hamburguesa ──
+    const toggle = document.getElementById("nav-toggle");
+    const links  = document.getElementById("nav-links");
+    toggle.addEventListener("click", () => {
+      const open = links.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open);
+    });
+    links.querySelectorAll("a, button").forEach(el => {
+      el.addEventListener("click", () => {
+        links.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", false);
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        showToast("Ya tienes una sesión activa.", "info");
+        setTimeout(() => window.location = "/", 1200);
+      }
+    });
+
+    document.getElementById("form_session").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const datos = Object.fromEntries(formData.entries());
+
+      try {
+        const res = await fetch("/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(datos)
+        });
+
+        if (!res.ok && res.status !== 200) {
+          showToast("Sin respuesta del servidor.", "error");
+          return;
+        }
+
+        const data = await res.json();
+
+        if (data.token) {
+          localStorage.setItem("token",    data.token);
+          localStorage.setItem("rol",      data.rol);
+          localStorage.setItem("nombre",   data.nombre);
+          localStorage.setItem("correo",   data.correo);
+          localStorage.setItem("telefono", data.telefono);
+          showToast(data.msg || "Sesión iniciada.", "success");
+          setTimeout(() => window.location = "/", 1200);
+        } else {
+          showToast(data.msg || "Datos incorrectos.", "error");
+        }
+
+      } catch (error) {
+        console.error(error);
+        showToast("Algo falló. Intenta de nuevo.", "error");
+      }
+    });
+  </script>
+</body>
+</html>

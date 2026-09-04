@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel empleado | OnliStyle</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/empleado.css">
+</head>
+<body>
+
+  <nav>
+    <span class="nav-brand">ONLISTYLE</span>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/agendar">Agendar cita</a></li>
+      <li><a href="/nosotros">Nosotros</a></li>
+      <li><a href="/perfil">Mi perfil</a></li>
+      <li><a href="/citas">Mis citas</a></li>
+      <li><a href="/citas_empleado">Citas agendadas</a></li>
+      <li id="nav-panel-admin" style="display:none"><a href="/admin">Panel admin</a></li>
+      <li><button id="btn-logout">Cerrar sesión</button></li>
+    </ul>
+  </nav>
+
+  <div id="toast-container"></div>
+
+  <main class="empleado-layout">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="empleado-sidebar">
+      <div class="avatar-circle" id="avatar-iniciales">--</div>
+      <p class="emp-nombre" id="emp-nombre">—</p>
+      <p class="emp-tag">Empleado</p>
+
+      <nav class="emp-nav" role="tablist">
+        <button class="emp-nav-item active" data-tab="crear">✦ Crear servicio</button>
+        <button class="emp-nav-item"        data-tab="mis-servicios">✦ Mis servicios</button>
+      </nav>
+
+      <a href="/" class="emp-back">← Volver al inicio</a>
+    </aside>
+
+    <!-- ── PANEL ── -->
+    <section class="empleado-panel">
+
+      <!-- ══ TAB: CREAR SERVICIO ══ -->
+      <div class="emp-tab active" id="tab-crear">
+
+        <div class="emp-tab-header">
+          <p class="emp-label">Panel de empleado</p>
+          <h2>Crear servicio</h2>
+          <p class="emp-desc">Registra un nuevo servicio que ofrecerás a los clientes de OnliStyle.</p>
+        </div>
+
+        <form class="emp-form" id="form-servicio" novalidate autocomplete="off">
+
+          <div class="emp-grid">
+
+            <div class="emp-field">
+              <label for="srv-nombre">Nombre del servicio</label>
+              <input type="text" id="srv-nombre" name="nombre"
+                     maxlength="100" required placeholder="Ej: Corte clásico para caballero">
+            </div>
+
+            <div class="emp-field">
+              <label for="srv-categoria">Categoría</label>
+              <select id="srv-categoria" name="id_categoria" required>
+                <option value="" disabled selected>Selecciona una categoría</option>
+                <!-- Las categorías las cargas tú desde tu backend -->
+                <option value="1">Corte de cabello</option>
+                <option value="2">Limpieza facial</option>
+                <option value="3">Afeitado y barba</option>
+                <option value="4">Cuidado personal</option>
+              </select>
+            </div>
+
+            <div class="emp-field emp-field--full">
+              <label for="srv-descripcion">Descripción</label>
+              <textarea id="srv-descripcion" name="descripcion"
+                        rows="3" maxlength="1000"
+                        placeholder="Describe en qué consiste el servicio..."></textarea>
+            </div>
+
+            <div class="emp-field">
+              <label for="srv-precio">Precio <span class="emp-hint">(en pesos)</span></label>
+              <input type="number" id="srv-precio" name="precio"
+                     min="0" max="9999999" required placeholder="Ej: 25000">
+            </div>
+
+            <div class="emp-field">
+              <label for="srv-modalidad">Modalidad</label>
+              <select id="srv-modalidad" name="modalidad" required>
+                <option value="" disabled selected>Selecciona una opción</option>
+                <option value="domicilio">A domicilio</option>
+                <option value="presencial">Presencial</option>
+                <option value="ambas">Ambas</option>
+              </select>
+            </div>
+
+            <div class="emp-field" id="campo-punto" style="display:none">
+              <label for="srv-punto">Punto físico <span class="emp-hint">(dirección)</span></label>
+              <input type="text" id="srv-punto" name="punto_fisico"
+                     maxlength="255" placeholder="Ej: Calle 10 #5-32, Bogotá">            </div>
+
+          </div>
+
+          <div class="emp-form-footer">
+            <button type="submit" class="btn-emp-save" id="btn-emp-save">
+              <span class="btn-text">Publicar servicio</span>
+              <span class="btn-loader" aria-hidden="true"></span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- ══ TAB: MIS SERVICIOS ══ -->
+      <div class="emp-tab" id="tab-mis-servicios">
+        <div class="emp-tab-header">
+          <p class="emp-label">Panel de empleado</p>
+          <h2>Mis servicios</h2>
+          <p class="emp-desc">Aquí aparecerán los servicios que hayas creado.</p>
+        </div>
+        <!-- Tú rellenas esto con los servicios desde tu backend -->
+        <div class="servicios-lista" id="servicios-lista">
+          <p class="servicios-empty">Aún no tienes servicios registrados.</p>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="../js/toast.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/nav-icons.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const token  = localStorage.getItem("token");
+      const nombre = localStorage.getItem("nombre") ?? "";
+      const rol    = localStorage.getItem("rol")    ?? "";
+
+      if (!token || rol.toLowerCase() !== "empleado") {
+        window.location.href = "/";
+        return;
+      }
+
+      document.getElementById("emp-nombre").textContent = nombre;
+      const iniciales = nombre.split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase();
+      document.getElementById("avatar-iniciales").textContent = iniciales;
+
+      // Cargar categorías en el select
+      cargarCategoriasSelect();
+      // Cargar mis servicios
+      cargarMisServicios();
+    });
+
+    async function cargarMisServicios() {
+      const contenedor = document.getElementById("servicios-lista");
+      try {
+        const res  = await apiFetch("/my_servicios");
+        const data = await res.json();
+        const servicios = data.my_services ?? [];
+
+        if (servicios.length === 0) {
+          contenedor.innerHTML = `<p class="servicios-empty">Aún no tienes servicios registrados.</p>`;
+          return;
+        }
+
+        contenedor.innerHTML = servicios.map(s => {
+          const disp = s.disponible
+            ? `<span class="srv-badge srv-badge--activo">Disponible</span>`
+            : `<span class="srv-badge srv-badge--inactivo">No disponible</span>`;
+          return `
+            <div class="srv-card">
+              <div class="srv-card-header">
+                <span class="srv-nombre">${s.nombre}</span>
+                ${disp}
+              </div>
+              <p class="srv-descripcion">${s.descripcion ?? "Sin descripción"}</p>
+              <div class="srv-meta">
+                <span>$${s.precio?.toLocaleString("es-CO") ?? "—"}</span>
+                <span>${s.duracion_estimada ? s.duracion_estimada + " min" : "—"}</span>
+                <span>${s.modalidad ?? "—"}</span>
+              </div>
+              <button class="btn-eliminar-srv" data-id="${s.id}">Eliminar servicio</button>
+            </div>
+          `;
+        }).join("");
+
+        // Delegación eliminar
+        contenedor.querySelectorAll(".btn-eliminar-srv").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            btn.disabled = true;
+            btn.textContent = "Eliminando...";
+            try {
+              const res  = await apiFetch(`/service/${btn.dataset.id}`, {
+                method: "DELETE"
+              });
+              const data = await res.json();
+              showToast(data.msg, res.ok ? "success" : "error");
+              if (res.ok) cargarMisServicios();
+            } catch (e) {
+              if (e?.name === "TokenError") return;
+              showToast("Error de conexión.", "error");
+              btn.disabled = false;
+              btn.textContent = "Eliminar servicio";
+            }
+          });
+        });
+
+      } catch (e) {
+        if (e?.name === "TokenError") return;
+        contenedor.innerHTML = `<p class="servicios-empty">Error al cargar tus servicios.</p>`;
+      }
+    }
+
+    async function cargarCategoriasSelect() {
+      const select = document.getElementById("srv-categoria");
+      try {
+        const res  = await fetch("/categorias");
+        const data = await res.json();
+        const cats = data.categorias ?? [];
+
+        select.innerHTML = `<option value="" disabled selected>Selecciona una categoría</option>`;
+        cats.forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c.id;
+          opt.textContent = c.nombre;
+          select.appendChild(opt);
+        });
+      } catch {
+        select.innerHTML = `<option disabled>Error al cargar categorías</option>`;
+      }
+    }
+
+    // ── Mostrar punto físico según modalidad ──
+    document.getElementById("srv-modalidad").addEventListener("change", (e) => {
+      const campo = document.getElementById("campo-punto");
+      const input = document.getElementById("srv-punto");
+      const necesita = e.target.value === "presencial" || e.target.value === "ambas";
+      campo.style.display = necesita ? "block" : "none";
+      input.required = necesita;
+      if (!necesita) input.value = "";
+    });
+
+    // ── Envío del formulario ──
+    document.getElementById("form-servicio").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const form = e.target;
+      const btn  = document.getElementById("btn-emp-save");
+
+      const datos = {
+        nombre:            form.nombre.value,
+        id_categoria:      Number(form.id_categoria.value),
+        descripcion:       form.descripcion.value,
+        precio:            Number(form.precio.value),
+        modalidad:         form.modalidad.value,
+        punto_fisico:      form.punto_fisico.value || "Sin punto físico"
+      };
+
+      btn.disabled = true;
+      btn.classList.add("loading");
+
+      try {
+        const res  = await apiFetch("/create_services", {
+          method: "POST",
+          body: JSON.stringify(datos)
+        });
+
+        const data = await res.json();
+        showToast(data.msg, res.ok ? "success" : "error");
+
+        if (res.ok) form.reset();
+
+      } catch (e) {
+        if (e?.name === "TokenError") return;
+        showToast("Error de conexión. Intenta de nuevo.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove("loading");
+      }
+    });
+
+    // ── Tabs ──
+    document.querySelectorAll(".emp-nav-item").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".emp-nav-item").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".emp-tab").forEach(t => t.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    // ── Cerrar sesión ──
+    document.getElementById("btn-logout").addEventListener("click", () => {
+      localStorage.clear();
+      showToast("Sesión cerrada.", "info");
+      setTimeout(() => window.location.href = "/", 1200);
+    });
+
+    // ── Hamburguesa ──
+    const toggle   = document.getElementById("nav-toggle");
+    const navLinks = document.getElementById("nav-links");
+    toggle.addEventListener("click", () => {
+      const open = navLinks.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open);
+    });
+    navLinks.querySelectorAll("a, button").forEach(el => {
+      el.addEventListener("click", () => {
+        navLinks.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", false);
+      });
+    });
+  </script>
+</body>
+</html>

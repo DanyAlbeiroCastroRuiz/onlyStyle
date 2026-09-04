@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi perfil | OnliStyle</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/perfil.css">
+</head>
+<body>
+
+  <nav>
+    <span class="nav-brand">ONLISTYLE</span>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/agendar">Agendar cita</a></li>
+      <li><a href="/nosotros">Nosotros</a></li>
+      <li id="nav-perfil-item" style="display:none"><a href="/perfil">Mi perfil</a></li>
+      <li id="nav-citas-item" style="display:none"><a href="/citas">Mis citas</a></li>
+      <li id="nav-panel-empleado" style="display:none"><a href="/empleado">Panel empleado</a></li>
+      <li id="nav-citas-empleado" style="display:none"><a href="/citas_empleado">Citas agendadas</a></li>
+      <li id="nav-panel-admin" style="display:none"><a href="/admin">Panel admin</a></li>
+      <li id="nav-login-item"><a href="/login">Iniciar sesión</a></li>
+      <li id="nav-register-item"><a href="/register">Registrarme</a></li>
+      <li id="nav-logout-item" style="display:none">
+        <button id="btn-logout">Cerrar sesión</button>
+      </li>
+    </ul>
+  </nav>
+
+  <div id="toast-container"></div>
+
+  <main class="perfil-layout">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="perfil-sidebar">
+      <div class="avatar-circle" id="avatar-iniciales">--</div>
+      <p class="perfil-nombre" id="sidebar-nombre">—</p>
+      <p class="perfil-correo" id="sidebar-correo">—</p>
+
+      <div class="perfil-rol-badge" id="rol-badge-container">
+        <span class="rol-badge" id="rol-badge">
+          <span class="rol-prefix">ROL</span>
+          <span class="rol-sep"></span>
+          <span class="rol-valor" id="rol-valor">—</span>
+        </span>
+      </div>
+
+      <nav class="perfil-nav" role="tablist">
+        <button class="pnav-item active" role="tab" data-tab="datos">Editar perfil</button>
+        <button class="pnav-item"        role="tab" data-tab="eliminar">Eliminar cuenta</button>
+      </nav>
+
+      <!-- Acceso al panel admin si el rol lo permite -->
+      <a href="/admin" class="btn-panel-admin" id="link-admin" style="display:none">Panel de administración</a>
+
+      <a href="/" class="perfil-back">← Volver al inicio</a>
+    </aside>
+
+    <!-- ── PANEL ── -->
+    <section class="perfil-panel">
+
+      <!-- ══ TAB: EDITAR PERFIL ══ -->
+      <div class="perfil-tab active" id="tab-datos" role="tabpanel">
+
+        <div class="tab-header">
+          <p class="tab-label">Cuenta</p>
+          <h2>Editar perfil</h2>
+          <p class="tab-desc">Actualiza tu información personal. Solo se envían los campos que hayas modificado.</p>
+        </div>
+
+        <form class="edit-form" id="form-perfil" novalidate autocomplete="off">
+
+          <div class="edit-grid">
+
+            <div class="field-group">
+              <label for="inp-nombre">Nombre completo</label>
+              <input type="text"
+                     id="inp-nombre"
+                     name="nombre"
+                     maxlength="100"
+                     autocomplete="off">
+              <span class="field-hint">Máximo 100 caracteres</span>
+            </div>
+
+            <div class="field-group">
+              <label for="inp-telefono">Teléfono</label>
+              <input type="tel"
+                     id="inp-telefono"
+                     name="telefono"
+                     maxlength="20"
+                     autocomplete="off">
+              <span class="field-hint">Máximo 20 caracteres</span>
+            </div>
+
+            <div class="field-group field-group--full">
+              <label for="inp-correo">Correo electrónico</label>
+              <input type="email"
+                     id="inp-correo"
+                     name="correo"
+                     maxlength="100"
+                     autocomplete="off">
+              <span class="field-hint">Máximo 100 caracteres · Formato válido requerido</span>
+            </div>
+
+            <div class="field-group field-group--full">
+              <label>Contraseña</label>
+              <a class="soporte-wa-inline"
+                 href="https://wa.me/573000000000?text=Hola%2C%20necesito%20cambiar%20mi%20contraseña%20en%20OnliStyle"
+                 target="_blank" rel="noopener">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                Contactar soporte para cambiar contraseña
+              </a>
+              <span class="field-hint">Te atendemos por WhatsApp · Lun — Vie · 8am a 6pm</span>
+            </div>
+
+          </div>
+
+          <div class="form-footer-actions">
+            <button type="submit" class="btn-save" id="btn-save">
+              <span class="btn-save-text">Guardar cambios</span>
+              <span class="btn-save-loader" aria-hidden="true"></span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- ══ TAB: ELIMINAR CUENTA ══ -->
+      <div class="perfil-tab" id="tab-eliminar" role="tabpanel">
+
+        <div class="tab-header">
+          <p class="tab-label danger-label">Cuidado</p>
+          <h2>Eliminar cuenta</h2>
+          <p class="tab-desc">Esta acción es permanente e irreversible. Lee con atención antes de continuar.</p>
+        </div>
+
+        <div class="danger-container">
+          <div class="danger-warnings">
+            <p class="danger-title">Al eliminar tu cuenta</p>
+            <ul class="danger-list">
+              <li>Se borrarán todos tus datos personales de forma permanente</li>
+              <li>No podrás recuperar el acceso con este correo</li>
+              <li>Los servicios agendados pendientes serán cancelados</li>
+            </ul>
+          </div>
+
+          <form class="edit-form" id="form-eliminar" autocomplete="off">
+            <div class="field-group">
+              <label for="inp-eliminar-pass">Contraseña actual</label>
+              <input type="password"
+                     id="inp-eliminar-pass"
+                     name="contrasena"
+                     maxlength="255"
+                     required
+                     placeholder="Confirma tu contraseña">
+            </div>
+            <button type="submit" class="btn-eliminar">Eliminar mi cuenta</button>
+          </form>        </div>
+
+      </div>
+
+    </section>
+  </main>
+
+  <script src="../js/toast.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/nav-icons.js"></script>
+  <script>
+    // ── Datos originales del localStorage ──
+    const datosOriginales = {
+      nombre:   localStorage.getItem("nombre")   ?? "",
+      telefono: localStorage.getItem("telefono") ?? "",
+      correo:   localStorage.getItem("correo")   ?? ""
+    };
+
+    // ── Cargar datos al DOM ──
+    function cargarDatos() {
+      const token = localStorage.getItem("token");
+      if (!token) { window.location.href = "/"; return; }
+
+      const { nombre, correo } = datosOriginales;
+      const rol = localStorage.getItem("rol") || "—";
+
+      // Sidebar
+      document.getElementById("sidebar-nombre").textContent = nombre || "—";
+      document.getElementById("sidebar-correo").textContent = correo || "—";
+
+      // Badge de rol
+      const badge = document.getElementById("rol-badge");
+      badge.className = "rol-badge rol-badge--" + (rol || "").toLowerCase();
+      document.getElementById("rol-valor").textContent = rol || "—";
+
+      const iniciales = (nombre || "--").split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase();
+      document.getElementById("avatar-iniciales").textContent = iniciales;
+
+      // Mostrar acceso al panel admin si corresponde
+      if (rol.toLowerCase() === "admin") {
+        document.getElementById("link-admin").style.display = "block";
+      }
+
+      // Inputs con valores actuales (no placeholder)
+      document.getElementById("inp-nombre").value   = datosOriginales.nombre;
+      document.getElementById("inp-telefono").value = datosOriginales.telefono;
+      document.getElementById("inp-correo").value   = datosOriginales.correo;
+    }
+
+    // ── Validaciones ──
+    function validarCorreo(correo) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+    }
+
+    function validarCampos(datos) {
+      if (datos.nombre   !== undefined && datos.nombre.length   > 100) return "El nombre supera los 100 caracteres.";
+      if (datos.telefono !== undefined && datos.telefono.length > 20)  return "El teléfono supera los 20 caracteres.";
+      if (datos.correo   !== undefined && datos.correo.length   > 100) return "El correo supera los 100 caracteres.";
+      if (datos.correo   !== undefined && !validarCorreo(datos.correo)) return "El formato del correo no es válido.";
+      return null;
+    }
+
+    // ── Construir objeto con solo los campos modificados ──
+    function obtenerCambios(form) {
+      const nombre   = form.nombre.value;
+      const telefono = form.telefono.value;
+      const correo   = form.correo.value;
+      const cambios  = {};
+
+      if (nombre   !== datosOriginales.nombre)   cambios.nombre   = nombre;
+      if (telefono !== datosOriginales.telefono) cambios.telefono = telefono;
+      if (correo   !== datosOriginales.correo)   cambios.correo   = correo;
+
+      return cambios;
+    }
+
+    // ── Envío del formulario de perfil ──
+    document.getElementById("form-perfil").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const form    = e.target;
+      const btnSave = document.getElementById("btn-save");
+      const cambios = obtenerCambios(form);
+
+      if (Object.keys(cambios).length === 0) {
+        showToast("No se realizaron cambios.", "info");
+        return;
+      }
+
+      const error = validarCampos(cambios);
+      if (error) { showToast(error, "error"); return; }
+
+      // Estado de carga
+      btnSave.disabled = true;
+      btnSave.classList.add("loading");
+
+      try {
+        const response = await apiFetch("/perfil", {
+          method: "PATCH",
+          body: JSON.stringify(cambios)
+        });
+
+        const data = await response.json();
+
+        // Mensajes del backend → tipo de notificación
+        const exito  = ["Cambios guardados correctamente"];
+        const info   = ["No hubo cambios para guardar"];
+        const tipo   = exito.includes(data.msg) ? "success" : info.includes(data.msg) ? "info" : "error";
+
+        showToast(data.msg, tipo);
+
+        if (tipo === "success") {
+          // Actualizar localStorage y datosOriginales con los nuevos valores
+          if (cambios.nombre)   { localStorage.setItem("nombre",   cambios.nombre);   datosOriginales.nombre   = cambios.nombre; }
+          if (cambios.telefono) { localStorage.setItem("telefono", cambios.telefono); datosOriginales.telefono = cambios.telefono; }
+          if (cambios.correo)   { localStorage.setItem("correo",   cambios.correo);   datosOriginales.correo   = cambios.correo; }
+
+          // Refrescar sidebar e inputs
+          cargarDatos();
+        }
+
+      } catch (e) {
+        if (e?.name === "TokenError") return;
+        showToast("Error de conexión. Intenta de nuevo.", "error");
+      } finally {
+        btnSave.disabled = false;
+        btnSave.classList.remove("loading");
+      }
+    });
+
+    // ── Eliminar cuenta ──
+    document.getElementById("form-eliminar").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const contrasena = document.getElementById("inp-eliminar-pass").value;
+      if (!contrasena) { showToast("Ingresa tu contraseña para confirmar.", "error"); return; }
+
+      const btnEliminar = e.target.querySelector(".btn-eliminar");
+      btnEliminar.disabled = true;
+      btnEliminar.textContent = "Eliminando...";
+
+      try {
+        const response = await apiFetch("/perfil", {
+          method: "DELETE",
+          body: JSON.stringify({ contrasena })
+        });
+
+        const data = await response.json();
+
+        // Mensajes del backend → tipo de notificación
+        const exitoDelete = ["usuario eliminado"];
+        const tipoDelete  = exitoDelete.includes(data.msg) ? "success" : "error";
+
+        showToast(data.msg, tipoDelete);
+
+        if (tipoDelete === "success") {
+          localStorage.clear();
+          setTimeout(() => window.location.href = "/", 1500);
+        }
+
+      } catch (e) {
+        if (e?.name === "TokenError") return;
+        showToast("Error de conexión. Intenta de nuevo.", "error");
+      } finally {
+        btnEliminar.disabled = false;
+        btnEliminar.textContent = "Eliminar mi cuenta";
+      }
+    });
+
+    // ── Tabs ──
+    document.querySelectorAll(".pnav-item").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".pnav-item").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".perfil-tab").forEach(t => t.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    // ── Cerrar sesión ──
+    document.getElementById("btn-logout").addEventListener("click", () => {
+      localStorage.clear();
+      showToast("Sesión cerrada.", "info");
+      setTimeout(() => window.location.href = "/", 1200);
+    });
+
+    (function initNav() {
+      const token = localStorage.getItem("token");
+      const rol   = (localStorage.getItem("rol") ?? "").toLowerCase();
+      if (token) {
+        const perfil       = document.getElementById("nav-perfil-item");
+        const citas        = document.getElementById("nav-citas-item");
+        const login        = document.getElementById("nav-login-item");
+        const register     = document.getElementById("nav-register-item");
+        const logout       = document.getElementById("nav-logout-item");
+        const panelEmp     = document.getElementById("nav-panel-empleado");
+        const citasEmp     = document.getElementById("nav-citas-empleado");
+        const panelAdmin   = document.getElementById("nav-panel-admin");
+        if (perfil)     perfil.style.display     = "list-item";
+        if (citas)      citas.style.display      = "list-item";
+        if (login)      login.style.display      = "none";
+        if (register)   register.style.display   = "none";
+        if (logout)     logout.style.display     = "list-item";
+        if (panelEmp  && rol === "empleado") panelEmp.style.display  = "list-item";
+        if (citasEmp  && rol === "empleado") citasEmp.style.display  = "list-item";
+        if (panelAdmin && rol === "admin")   panelAdmin.style.display = "list-item";
+      }
+    })();
+
+    // ── Hamburguesa ──
+    const toggle   = document.getElementById("nav-toggle");
+    const navLinks = document.getElementById("nav-links");
+    toggle.addEventListener("click", () => {
+      const open = navLinks.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open);
+    });
+    navLinks.querySelectorAll("a, button").forEach(el => {
+      el.addEventListener("click", () => {
+        navLinks.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", false);
+      });
+    });
+
+    // ── Link activo en nav ──
+    const path = window.location.pathname;
+    document.querySelectorAll(".nav-links li a").forEach(a => {
+      const href = a.getAttribute("href");
+      if (href && href !== "#" && !a.classList.contains("btn-accent") && !a.classList.contains("btn-outline")) {
+        if (path === href || (href !== "/" && path.startsWith(href)))
+          a.classList.add("nav-active");
+      }
+    });
+
+    // ── Init ──
+    document.addEventListener("DOMContentLoaded", cargarDatos);
+  </script>
+</body>
+</html>

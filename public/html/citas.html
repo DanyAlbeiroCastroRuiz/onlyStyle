@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis citas | OnliStyle</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/citas.css">
+</head>
+<body class="bg-fondo">
+
+  <nav>
+    <span class="nav-brand">ONLISTYLE</span>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/nosotros">Nosotros</a></li>
+      <li><a href="/agendar">Agendar cita</a></li>
+      <li id="nav-perfil-item" style="display:none"><a href="/perfil">Mi perfil</a></li>
+      <li id="nav-citas-item" style="display:none"><a href="/citas">Mis citas</a></li>
+      <li id="nav-panel-empleado" style="display:none"><a href="/empleado">Panel empleado</a></li>
+      <li id="nav-citas-empleado" style="display:none"><a href="/citas_empleado">Citas agendadas</a></li>
+      <li id="nav-panel-admin" style="display:none"><a href="/admin">Panel admin</a></li>
+      <li id="nav-login-item"><a href="/login">Iniciar sesión</a></li>
+      <li id="nav-register-item"><a href="/register">Registrarme</a></li>
+      <li id="nav-logout-item" style="display:none">
+        <button id="btn-logout">Cerrar sesión</button>
+      </li>
+    </ul>
+  </nav>
+
+  <div id="toast-container"></div>
+
+  <main class="citas-main">
+
+    <!-- ── HEADER ── -->
+    <div class="citas-header">
+      <p class="citas-label">Historial</p>
+      <h1>Mis citas</h1>
+      <p class="citas-sub">Aquí puedes ver todas tus citas agendadas y su estado actual.</p>
+    </div>
+
+    <!-- ── FILTROS ── -->
+    <div class="citas-filtros" id="citas-filtros">
+      <button class="cita-filtro active" data-estado="todos">Todas</button>
+      <button class="cita-filtro" data-estado="pendiente">Pendientes</button>
+      <button class="cita-filtro" data-estado="confirmado">Confirmadas</button>
+      <button class="cita-filtro" data-estado="cancelado">Canceladas</button>
+    </div>
+
+    <!-- ── LISTA DE CITAS ── -->
+    <div class="citas-lista" id="citas-lista">
+      <!-- Skeletons iniciales -->
+      <div class="cita-skeleton"></div>
+      <div class="cita-skeleton"></div>
+      <div class="cita-skeleton"></div>
+    </div>
+
+  </main>
+
+  <script src="../js/toast.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/nav-icons.js"></script>
+  <script>
+    const token = localStorage.getItem("token");
+    if (!token) window.location.href = "/";
+
+    let todasLasCitas = [];
+    let filtroActivo  = "todos";
+
+    // ── Mapa de estados a etiqueta y color ──
+    const ESTADO_CONFIG = {
+      pendiente:  { label: "Pendiente",  clase: "cita-badge--pendiente"  },
+      confirmado: { label: "Confirmada", clase: "cita-badge--confirmado" },
+      cancelado:  { label: "Cancelada",  clase: "cita-badge--cancelado"  },
+    };
+
+    // ── Formatear fecha ──
+    function formatearFecha(fechaStr) {
+      const d = new Date(fechaStr);
+      return d.toLocaleDateString("es-CO", {
+        weekday: "short", day: "numeric", month: "short", year: "numeric"
+      }) + " · " + d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function formatearHora(fechaStr) {
+      const d = new Date(fechaStr);
+      return d.toLocaleDateString("es-CO", {
+        weekday: "short", day: "numeric", month: "short", year: "numeric"
+      }) + " a las " + d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    // ── Renderizar citas ──
+    function renderCitas(citas) {
+      const lista = document.getElementById("citas-lista");
+
+      if (citas.length === 0) {
+        lista.innerHTML = `
+          <div class="citas-empty">
+            <span class="citas-empty-icon">📅</span>
+            <p>No tienes citas ${filtroActivo === "todos" ? "agendadas" : "con ese estado"}.</p>
+            ${filtroActivo === "todos" ? '<a href="/agendar" class="btn-hero primary" style="margin-top:1rem;display:inline-block;padding:0.7rem 2rem;border-radius:10px;font-weight:700;color:#000;text-decoration:none;">Agendar ahora</a>' : ""}
+          </div>`;
+        return;
+      }
+
+      lista.innerHTML = citas.map(cita => {
+        const config = ESTADO_CONFIG[cita.estado] || { label: "Pendiente", clase: "cita-badge--pendiente" };
+        return `
+          <article class="cita-card">
+            <div class="cita-card-top">
+              <div class="cita-info">
+                <p class="cita-servicio">${cita.nombre ?? cita.nombre_servicio ?? "Servicio"}</p>
+                <p class="cita-fecha-label">Hora y fecha</p>
+                <p class="cita-fecha">${formatearHora(cita.fecha_inicio)}</p>
+              </div>
+              <span class="cita-badge ${config.clase}">${config.label}</span>
+            </div>
+
+            <div class="cita-detalles">
+              <span class="cita-meta-item">
+                <span class="cita-meta-key">Duración</span>
+                <span class="cita-meta-val">${cita.tiempo_total ?? "—"} min</span>
+              </span>
+              <span class="cita-meta-item">
+                <span class="cita-meta-key">Precio</span>
+                <span class="cita-meta-val cita-precio">$${Number(cita.precio ?? cita.total ?? 0).toLocaleString("es-CO")}</span>
+              </span>
+              ${cita.direccion ? `
+              <span class="cita-meta-item">
+                <span class="cita-meta-key">Dirección</span>
+                <span class="cita-meta-val">${cita.direccion}</span>
+              </span>` : ""}
+              ${cita.descripcion ? `
+              <span class="cita-meta-item cita-meta-item--full">
+                <span class="cita-meta-key">Descripción</span>
+                <span class="cita-meta-val cita-desc-val">${cita.descripcion}</span>
+              </span>` : ""}
+            </div>
+          </article>`;
+      }).join("");
+    }
+
+    // ── Filtrar y renderizar ──
+    function aplicarFiltro(estado) {
+      filtroActivo = estado;
+      const filtradas = estado === "todos"
+        ? todasLasCitas
+        : todasLasCitas.filter(c => c.estado === estado);
+      renderCitas(filtradas);
+    }
+
+    // ── Cargar citas desde la API ──
+    async function cargarCitas() {
+      try {
+        const res  = await apiFetch("/mis_citas");
+        const data = await res.json();
+
+        if (!res.ok || data.msg) {
+          // msg puede ser "No tienes citas pendientes" — no es error grave
+          if (data.msg === "No tienes citas pendientes") {
+            todasLasCitas = [];
+            aplicarFiltro(filtroActivo);
+          } else {
+            showToast(data.msg || "Error al cargar citas.", "error");
+            document.getElementById("citas-lista").innerHTML =
+              '<p class="citas-empty">No se pudieron cargar tus citas.</p>';
+          }
+          return;
+        }
+
+      
+        const citas = data.my_citas ?? data;
+        todasLasCitas = Array.isArray(citas) ? citas : [citas];
+        aplicarFiltro(filtroActivo);
+      } catch (e) {
+        if (e?.name === "TokenError") return;
+        showToast("Error de conexión.", "error");
+        document.getElementById("citas-lista").innerHTML =
+          '<p class="citas-empty">Error de conexión. Intenta de nuevo.</p>';
+      }
+    }
+
+    // ── Filtros ──
+    document.getElementById("citas-filtros").addEventListener("click", (e) => {
+      const btn = e.target.closest(".cita-filtro");
+      if (!btn) return;
+      document.querySelectorAll(".cita-filtro").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      aplicarFiltro(btn.dataset.estado);
+    });
+
+    // ── Cerrar sesión ──
+    document.getElementById("btn-logout").addEventListener("click", () => {
+      localStorage.clear();
+      showToast("Sesión cerrada.", "info");
+      setTimeout(() => window.location.href = "/", 1200);
+    });
+
+    // ── Nav dinámico ──
+    (function initNav() {
+      const token = localStorage.getItem("token");
+      if (token) {
+        const perfil     = document.getElementById("nav-perfil-item");
+        const citas      = document.getElementById("nav-citas-item");
+        const login      = document.getElementById("nav-login-item");
+        const register   = document.getElementById("nav-register-item");
+        const logout     = document.getElementById("nav-logout-item");
+        const panelEmp   = document.getElementById("nav-panel-empleado");
+        const citasEmp   = document.getElementById("nav-citas-empleado");
+        const panelAdmin = document.getElementById("nav-panel-admin");
+        const rol = (localStorage.getItem("rol") ?? "").toLowerCase();
+        if (perfil)   perfil.style.display   = "list-item";
+        if (citas)    citas.style.display    = "list-item";
+        if (login)    login.style.display    = "none";
+        if (register) register.style.display = "none";
+        if (logout)   logout.style.display   = "list-item";
+        if (panelEmp   && rol === "empleado") panelEmp.style.display   = "list-item";
+        if (citasEmp   && rol === "empleado") citasEmp.style.display   = "list-item";
+        if (panelAdmin && rol === "admin")    panelAdmin.style.display  = "list-item";
+      }
+    })();
+
+    // ── Hamburguesa ──
+    const toggle   = document.getElementById("nav-toggle");
+    const navLinks = document.getElementById("nav-links");
+    toggle.addEventListener("click", () => {
+      const open = navLinks.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open);
+    });
+    navLinks.querySelectorAll("a, button").forEach(el => {
+      el.addEventListener("click", () => {
+        navLinks.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", false);
+      });
+    });
+
+    // ── Link activo en nav ──
+    const path = window.location.pathname;
+    document.querySelectorAll(".nav-links li a").forEach(a => {
+      const href = a.getAttribute("href");
+      if (href && href !== "#" && !a.classList.contains("btn-accent") && !a.classList.contains("btn-outline")) {
+        if (path === href || (href !== "/" && path.startsWith(href)))
+          a.classList.add("nav-active");
+      }
+    });
+
+    // ── Init ──
+    document.addEventListener("DOMContentLoaded", cargarCitas);
+  </script>
+</body>
+</html>

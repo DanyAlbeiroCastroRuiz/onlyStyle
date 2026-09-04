@@ -1,0 +1,390 @@
+/* ===== CITAS EMPLEADO ===== */
+
+.empleado-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - var(--nav-h));
+}
+
+/* ── SIDEBAR ── */
+.empleado-sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 2.8rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  position: sticky;
+  top: var(--nav-h);
+  height: calc(100vh - var(--nav-h));
+  overflow-y: auto;
+}
+
+.avatar-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #000;
+  font-size: 1.5rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  flex-shrink: 0;
+  margin-bottom: 0.8rem;
+  box-shadow: 0 0 24px rgba(201,169,110,0.25);
+}
+
+.emp-nombre {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+}
+
+.emp-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2rem;
+}
+
+.emp-back {
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.emp-back:hover { color: var(--accent); opacity: 1; }
+
+/* ── PANEL PRINCIPAL ── */
+.empleado-panel {
+  padding: 3.5rem clamp(2rem, 6vw, 5rem);
+}
+
+/* ── HEADER ── */
+.emp-citas-header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.emp-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.emp-citas-header h2 {
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 800;
+  margin-bottom: 0.45rem;
+  line-height: 1.1;
+}
+
+.emp-desc {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  max-width: 560px;
+}
+
+/* ── FILTROS ── */
+.citas-filtros {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.cita-filtro {
+  padding: 0.5rem 1.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.cita-filtro:hover { color: var(--text); border-color: var(--accent); }
+.cita-filtro.active {
+  background: rgba(201,169,110,0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── LISTA ── */
+.citas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  max-width: 820px;
+}
+
+/* ── SKELETON ── */
+.cita-skeleton {
+  height: 180px;
+  border-radius: 18px;
+  background: linear-gradient(
+    90deg,
+    var(--surface) 25%,
+    var(--surface2) 50%,
+    var(--surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* ── CARD ── */
+.cita-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+  animation: fadeInUp 0.25s ease;
+}
+
+.cita-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── CARD TOP ── */
+.cita-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.6rem 1.8rem 1.4rem;
+  border-left: 4px solid var(--accent);
+  background: linear-gradient(135deg, rgba(201,169,110,0.07) 0%, transparent 60%);
+}
+
+.cita-info { display: flex; flex-direction: column; gap: 0.3rem; }
+
+.cita-servicio {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.cita-cliente {
+  font-size: 0.97rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.cita-cliente span {
+  color: var(--text);
+}
+
+.cita-fecha-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: 0.6rem;
+  margin-bottom: 0.15rem;
+}
+
+.cita-fecha {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cita-fecha::before {
+  content: "🕐";
+  font-size: 1rem;
+}
+
+/* ── BADGE ESTADO ── */
+.cita-badge {
+  flex-shrink: 0;
+  font-size: 0.88rem;
+  font-weight: 800;
+  padding: 0.4rem 1.1rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.cita-badge--pendiente  { background: rgba(201,169,110,0.14); color: var(--accent);  border: 1px solid rgba(201,169,110,0.4); }
+.cita-badge--pagado     { background: rgba(92,184,92,0.12);   color: #6bcf6b;        border: 1px solid rgba(92,184,92,0.35);  }
+.cita-badge--cancelado  { background: rgba(224,92,92,0.12);   color: var(--danger);  border: 1px solid rgba(224,92,92,0.35);  }
+
+/* ── DETALLES INFERIORES ── */
+.cita-detalles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+
+.cita-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1.1rem 1.8rem;
+  flex: 1 1 140px;
+  border-right: 1px solid var(--border);
+}
+
+.cita-meta-item:last-child { border-right: none; }
+
+.cita-meta-item--full {
+  flex-basis: 100%;
+  border-right: none;
+  border-top: 1px solid var(--border);
+}
+
+.cita-meta-key {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+}
+
+.cita-meta-val {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.cita-precio {
+  color: var(--accent);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+/* ── ACCIONES ── */
+.cita-acciones {
+  display: flex;
+  gap: 0.8rem;
+  padding: 1.1rem 1.8rem;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.btn-completar,
+.btn-cancelar {
+  padding: 0.6rem 1.6rem;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.btn-completar:hover,
+.btn-cancelar:hover { opacity: 0.85; }
+
+.btn-completar:active,
+.btn-cancelar:active { transform: scale(0.97); }
+
+.btn-completar:disabled,
+.btn-cancelar:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+.btn-completar { background: rgba(92,184,92,0.15); color: #6bcf6b; border: 1px solid rgba(92,184,92,0.35); }
+.btn-cancelar  { background: rgba(224,92,92,0.12);  color: var(--danger); border: 1px solid rgba(224,92,92,0.35); }
+
+/* ── EMPTY STATE ── */
+.citas-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  gap: 0.8rem;
+}
+
+.citas-empty-icon { font-size: 3rem; }
+.citas-empty p    { font-size: 1.1rem; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .empleado-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .empleado-sidebar {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 1.4rem 1.2rem;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    gap: 0.6rem;
+  }
+
+  .emp-tag { margin-bottom: 0; }
+  .emp-back { margin-top: 0; }
+
+  .empleado-panel { padding: 2rem 1.2rem 4rem; }
+}
+
+@media (max-width: 600px) {
+  .cita-card-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cita-badge { align-self: flex-start; }
+
+  .cita-meta-item {
+    padding: 1rem 1.2rem;
+    flex: 1 1 120px;
+  }
+}
+
+@media (max-width: 400px) {
+  .cita-card-top { padding: 1.2rem 1.2rem 1rem; }
+  .cita-detalles { flex-direction: column; }
+  .cita-meta-item {
+    flex-basis: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .cita-meta-item:last-child { border-bottom: none; }
+  .citas-filtros { gap: 0.3rem; }
+  .cita-filtro  { font-size: 0.85rem; padding: 0.4rem 0.85rem; }
+}

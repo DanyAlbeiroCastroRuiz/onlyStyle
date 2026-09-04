@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Citas agendadas | OnliStyle</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/citas_empleado.css">
+</head>
+<body>
+
+  <nav>
+    <span class="nav-brand">ONLISTYLE</span>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/agendar">Agendar cita</a></li>
+      <li><a href="/nosotros">Nosotros</a></li>
+      <li><a href="/perfil">Mi perfil</a></li>
+      <li><a href="/empleado">Panel empleado</a></li>
+      <li id="nav-panel-admin" style="display:none"><a href="/admin">Panel admin</a></li>
+      <li><button id="btn-logout">Cerrar sesión</button></li>
+    </ul>
+  </nav>
+
+  <div id="toast-container"></div>
+
+  <main class="empleado-layout">
+
+    <aside class="empleado-sidebar">
+      <div class="avatar-circle" id="avatar-iniciales">--</div>
+      <p class="emp-nombre" id="emp-nombre">—</p>
+      <p class="emp-tag">Empleado</p>
+      <a href="/empleado" class="emp-back">← Panel empleado</a>
+    </aside>
+
+    <section class="empleado-panel">
+
+      <div class="emp-citas-header">
+        <p class="emp-label">Panel de empleado</p>
+        <h2>Citas agendadas</h2>
+        <p class="emp-desc">Aquí aparecen las citas que los clientes han reservado en tus servicios. Puedes marcarlas como completadas o cancelarlas.</p>
+      </div>
+
+      <div class="citas-filtros" id="citas-filtros">
+        <button class="cita-filtro active" data-estado="todos">Todas</button>
+        <button class="cita-filtro" data-estado="pendiente">Pendientes</button>
+        <button class="cita-filtro" data-estado="pagado">Completadas</button>
+        <button class="cita-filtro" data-estado="cancelado">Canceladas</button>
+      </div>
+
+      <div class="citas-lista" id="citas-lista">
+        <div class="cita-skeleton"></div>
+        <div class="cita-skeleton"></div>
+        <div class="cita-skeleton"></div>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="../js/toast.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/nav-icons.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const token  = localStorage.getItem("token");
+      const nombre = localStorage.getItem("nombre") ?? "";
+      const rol    = localStorage.getItem("rol") ?? "";
+
+      if (!token || rol.toLowerCase() !== "empleado") {
+        window.location.href = "/";
+        return;
+      }
+
+      document.getElementById("emp-nombre").textContent = nombre;
+      const iniciales = nombre.split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase();
+      document.getElementById("avatar-iniciales").textContent = iniciales;
+
+      cargarCitas();
+    });
+
+    let todasLasCitas = [];
+    let filtroActivo  = "todos";
+
+    const ESTADO_CONFIG = {
+      pendiente: { label: "Pendiente",   clase: "cita-badge--pendiente" },
+      pagado:    { label: "Completada",  clase: "cita-badge--pagado"    },
+      cancelado: { label: "Cancelada",   clase: "cita-badge--cancelado" },
+    };
+
+    function formatearFecha(fechaStr) {
+      const d = new Date(fechaStr);
+      return d.toLocaleDateString("es-CO", {
+        weekday: "short", day: "numeric", month: "short", year: "numeric"
+      }) + " a las " + d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function renderCitas(citas) {
+      const lista = document.getElementById("citas-lista");
+
+      if (citas.length === 0) {
+        lista.innerHTML = `
+          <div class="citas-empty">
+            <span class="citas-empty-icon">📅</span>
+            <p>No tienes citas ${filtroActivo === "todos" ? "agendadas" : "con ese estado"}.</p>
+          </div>`;
+        return;
+      }
+
+      lista.innerHTML = "";
+
+      citas.forEach(cita => {
+        const config      = ESTADO_CONFIG[cita.estado] ?? ESTADO_CONFIG["pendiente"];
+        const esPendiente = cita.estado === "pendiente";
+
+        const article = document.createElement("article");
+        article.className = "cita-card";
+
+        article.innerHTML =
+          '<div class="cita-card-top">' +
+            '<div class="cita-info">' +
+              '<p class="cita-servicio">' + cita.nombre_servicio + '</p>' +
+              '<p class="cita-cliente">Cliente: <span>' + cita.nombre_cliente + '</span> · ' + cita.telefono_cliente + '</p>' +
+              '<p class="cita-fecha-label">Hora y fecha</p>' +
+              '<p class="cita-fecha">' + formatearFecha(cita.fecha_inicio) + '</p>' +
+            '</div>' +
+            '<span class="cita-badge ' + config.clase + '">' + config.label + '</span>' +
+          '</div>' +
+          '<div class="cita-detalles">' +
+            '<span class="cita-meta-item">' +
+              '<span class="cita-meta-key">Duración</span>' +
+              '<span class="cita-meta-val">' + (cita.tiempo_total ?? "—") + ' min</span>' +
+            '</span>' +
+            '<span class="cita-meta-item">' +
+              '<span class="cita-meta-key">Precio</span>' +
+              '<span class="cita-meta-val cita-precio">$' + Number(cita.precio ?? 0).toLocaleString("es-CO") + '</span>' +
+            '</span>' +
+            '<span class="cita-meta-item">' +
+              '<span class="cita-meta-key">Dirección</span>' +
+              '<span class="cita-meta-val">' + (cita.direccion ?? "—") + '</span>' +
+            '</span>' +
+          '</div>';
+
+        if (esPendiente) {
+          const acciones = document.createElement("div");
+          acciones.className = "cita-acciones";
+
+          const btnCompletar = document.createElement("button");
+          btnCompletar.className = "btn-completar";
+          btnCompletar.textContent = "✔ Completar";
+          btnCompletar.addEventListener("click", () => actualizarEstado(cita.detalle_id, "pagado", btnCompletar));
+
+          const btnCancelar = document.createElement("button");
+          btnCancelar.className = "btn-cancelar";
+          btnCancelar.textContent = "✖ Cancelar";
+          btnCancelar.addEventListener("click", () => actualizarEstado(cita.detalle_id, "cancelado", btnCancelar));
+
+          acciones.appendChild(btnCompletar);
+          acciones.appendChild(btnCancelar);
+          article.appendChild(acciones);
+        }
+
+        lista.appendChild(article);
+      });
+    }
+
+    function aplicarFiltro(estado) {
+      filtroActivo = estado;
+      const filtradas = estado === "todos"
+        ? todasLasCitas
+        : todasLasCitas.filter(c => c.estado === estado);
+      renderCitas(filtradas);
+    }
+
+    async function cargarCitas() {
+      try {
+        const res  = await apiFetch("/empleado/citas");
+        const data = await res.json();
+
+        if (data.msg) {
+          if (data.msg === "No tienes citas agendadas") {
+            todasLasCitas = [];
+            aplicarFiltro(filtroActivo);
+          } else {
+            showToast(data.msg, "error");
+            document.getElementById("citas-lista").innerHTML =
+              '<p class="citas-empty">No se pudieron cargar las citas.</p>';
+          }
+          return;
+        }
+
+        const citas = data.citas_empleado ?? [];
+        todasLasCitas = Array.isArray(citas) ? citas : [citas];
+        aplicarFiltro(filtroActivo);
+      } catch (e) {
+        if (e?.name === "TokenError") return;
+        showToast("Error de conexión.", "error");
+        document.getElementById("citas-lista").innerHTML =
+          '<p class="citas-empty">Error de conexión. Intenta de nuevo.</p>';
+      }
+    }
+
+    async function actualizarEstado(detalleId, estado, btnOrigen) {
+      const card    = btnOrigen.closest(".cita-card");
+      const botones = card.querySelectorAll("button");
+      botones.forEach(b => { b.disabled = true; });
+
+      try {
+        const res  = await apiFetch(`/empleado/citas/${detalleId}`, {
+          method: "PATCH",
+          body: JSON.stringify({ estado })
+        });
+        const data = await res.json();
+        showToast(data.msg, res.ok ? "success" : "error");
+        if (res.ok) cargarCitas();
+      } catch (e) {
+        if (e?.name === "TokenError") return;
+        showToast("Error de conexión.", "error");
+        botones.forEach(b => { b.disabled = false; });
+      }
+    }
+
+    document.getElementById("citas-filtros").addEventListener("click", (e) => {
+      const btn = e.target.closest(".cita-filtro");
+      if (!btn) return;
+      document.querySelectorAll(".cita-filtro").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      aplicarFiltro(btn.dataset.estado);
+    });
+
+    document.getElementById("btn-logout").addEventListener("click", () => {
+      localStorage.clear();
+      showToast("Sesión cerrada.", "info");
+      setTimeout(() => window.location.href = "/", 1200);
+    });
+
+    const toggle   = document.getElementById("nav-toggle");
+    const navLinks = document.getElementById("nav-links");
+    toggle.addEventListener("click", () => {
+      const open = navLinks.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open);
+    });
+    navLinks.querySelectorAll("a, button").forEach(el => {
+      el.addEventListener("click", () => {
+        navLinks.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", false);
+      });
+    });
+  </script>
+
+</body>
+</html>

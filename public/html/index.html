@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OnliStyle</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+  <nav>
+    <span class="nav-brand">ONLISTYLE</span>
+
+    <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/nosotros">Nosotros</a></li>
+      <li><a href="/agendar">Agendar cita</a></li>
+      <li id="nav-perfil-item" style="display:none"><a href="/perfil">Mi perfil</a></li>
+      <li id="nav-citas-item" style="display:none"><a href="/citas">Mis citas</a></li>
+      <li id="nav-empleado-item" style="display:none"><a href="/empleado" id="nav-panel-empleado">Panel empleado</a></li>
+      <li id="nav-citas-empleado-item" style="display:none"><a href="/citas_empleado">Citas agendadas</a></li>
+      <li id="nav-admin-item" style="display:none"><a href="/admin" id="nav-panel-admin">Panel admin</a></li>
+      <li id="nav-login-item"><a href="/login">Iniciar sesión</a></li>
+      <li id="nav-register-item"><a href="/register">Registrarme</a></li>
+      <li id="nav-logout-item" style="display:none">
+        <button id="btn-logout">Cerrar sesión</button>
+      </li>
+    </ul>
+  </nav>
+
+  <div id="toast-container"></div>
+
+  <!-- ── SECCIÓN 1: HERO ── -->
+  <section class="page-section hero">
+    <span class="hero-pretitle">✦ Estilismo a domicilio</span>
+    <p id="hero-saludo" style="display:none"></p>
+    <h1>Tu imagen,<br>a tu <span>medida</span></h1>
+    <p class="hero-sub">Agenda citas con los mejores estilistas desde donde estés. Rápido, fácil y sin complicaciones.</p>
+    <div class="hero-actions">
+      <button id="btn-crear-cuenta" class="btn-hero secondary" onclick="window.location='/register'">Crear cuenta</button>
+      <button id="btn-rol" class="btn-hero primary" style="display:none"></button>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-num" data-target="120">0</span>
+        <span class="hero-stat-label">Servicios</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num" data-target="500">0</span>
+        <span class="hero-stat-label">Clientes</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num" data-target="98">0</span>
+        <span class="hero-stat-label">% Satisfacción</span>
+      </div>
+    </div>
+    <a class="scroll-hint" href="#mision">↓</a>
+  </section>
+
+  <!-- ── SECCIÓN 2: MISIÓN ── -->
+  <section class="page-section section-mision" id="mision">
+    <div class="article-inner">
+      <div class="article-label">Misión</div>
+      <h2>Por qué existimos</h2>
+      <p>
+        Crear una plataforma web funcional que genere ingresos reales, aporte a la economía
+        local y produzca empleo de forma autónoma — especialmente para quienes tienen
+        horarios reducidos, movilidad limitada o responsabilidades de cuidado.
+      </p>
+      <div class="mv-pills">
+        <span>Empleo autónomo</span>
+        <span>Inclusión</span>
+        <span>Economía local</span>
+      </div>
+    </div>
+    <a class="scroll-hint" href="#vision">↓</a>
+  </section>
+
+  <!-- ── SECCIÓN 3: VISIÓN ── -->
+  <section class="page-section section-vision" id="vision">
+    <div class="article-inner">
+      <div class="article-label">Visión</div>
+      <h2>A dónde vamos</h2>
+      <p>
+        Crecer hasta ser una empresa reconocida globalmente, expandirnos a comunidades
+        internacionales y ofrecer servicios de alta calidad que transformen la manera
+        en que las personas acceden al cuidado personal.
+      </p>
+      <div class="mv-pills">
+        <span>Expansión global</span>
+        <span>Alta calidad</span>
+        <span>Comunidad</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal postulación -->
+  <div id="modal-postulacion" style="display:none" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div class="modal-overlay" onclick="document.getElementById('modal-postulacion').style.display='none'"></div>
+    <div class="modal-card modal-card--form">
+      <div class="modal-header">
+        <h3 id="modal-titulo">Únete como profesional</h3>
+        <p>Completa tu información para postularte como empleado en OnliStyle.</p>
+      </div>
+
+      <form id="form-postulacion" autocomplete="off">
+
+        <div class="modal-field">
+          <label for="post-profesion">Profesión</label>
+          <input type="text" id="post-profesion" name="profesion" maxlength="100" required placeholder="Ej: Estilista, Barbero...">
+        </div>
+
+        <div class="modal-field">
+          <label for="post-modalidad">Modalidad de trabajo</label>
+          <select id="post-modalidad" name="modalidad" required>
+            <option value="" disabled selected>Selecciona una opción</option>
+            <option value="domicilio">A domicilio</option>
+            <option value="presencial">Presencial</option>
+            <option value="ambas">Ambas</option>
+          </select>
+        </div>
+
+        <div class="modal-field" id="campo-punto-fisico" style="display:none">
+          <label for="post-punto">Punto físico <span class="modal-hint">(dirección del local)</span></label>
+          <input type="text" id="post-punto" name="punto_fisico" maxlength="255" placeholder="Ej: Calle 10 #5-32, Bogotá">
+        </div>
+
+        <div class="modal-field">
+          <label for="post-experiencia">Experiencia laboral</label>
+          <textarea id="post-experiencia" name="experiencia_laboral" rows="3" maxlength="1000" placeholder="Describe tu experiencia en el área..."></textarea>
+        </div>
+
+        <div class="modal-field">
+          <label for="post-diplomas">Diplomas o certificaciones <span class="modal-hint">(opcional)</span></label>
+          <textarea id="post-diplomas" name="diplomas" rows="2" maxlength="500" placeholder="Ej: Técnico en cosmetología, Curso de barbería..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-submit" id="btn-postular">Enviar postulación</button>
+          <button type="button" class="btn-hero secondary" onclick="document.getElementById('modal-postulacion').style.display='none'">Cancelar</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/toast.js"></script>
+  <script src="../js/nav-icons.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const token  = localStorage.getItem("token");
+      const rol    = localStorage.getItem("rol");
+      const nombre = localStorage.getItem("nombre");
+
+      if (!token) {
+        showToast("Inicia sesión para desbloquear todas las funcionalidades.", "info");
+        return;
+      }
+
+      document.getElementById("nav-register-item").style.display  = "none";
+      document.getElementById("nav-login-item").style.display    = "none";
+      document.getElementById("btn-crear-cuenta").style.display  = "none";
+      document.getElementById("nav-perfil-item").style.display   = "list-item";
+      document.getElementById("nav-citas-item").style.display    = "list-item";
+      document.getElementById("nav-logout-item").style.display   = "list-item";
+
+      if (nombre) {
+        const saludo = document.getElementById("hero-saludo");
+        saludo.textContent = `Hola de nuevo, ${nombre} 👋`;
+        saludo.style.display = "block";
+      }
+
+      const btnRol = document.getElementById("btn-rol");
+      btnRol.style.display = "block";
+
+      if (rol && rol.toLowerCase() === "empleado") {
+        btnRol.innerHTML = "<span>Crear servicio</span>";
+        btnRol.onclick = () => window.location = "/empleado";
+        document.getElementById("nav-empleado-item").style.display      = "list-item";
+        document.getElementById("nav-citas-empleado-item").style.display = "list-item";
+      } else if (rol && rol.toLowerCase() === "admin") {
+        btnRol.innerHTML = "<span>Panel de administración</span>";
+        btnRol.onclick = () => window.location = "/admin";
+      } else {
+        btnRol.innerHTML = "<span>Postularme</span>";
+        btnRol.title = "Postúlate para ofrecer servicios de cortes, limpieza facial y más en OnliStyle";
+        btnRol.onclick = () => {
+          document.getElementById("modal-postulacion").style.display = "flex";
+        };
+      }
+    });
+
+    async function postularse() {
+      const form = document.getElementById("form-postulacion");
+      const btn  = document.getElementById("btn-postular");
+
+      const datos = {
+        profesion:           form.profesion.value,
+        modalidad:           form.modalidad.value,
+        punto_fisico:        form.punto_fisico.value || "Sin punto físico",
+        experiencia_laboral: form.experiencia_laboral.value,
+        diplomas:            form.diplomas.value
+      };
+
+      btn.disabled = true;
+      btn.textContent = "Enviando...";
+
+      try {
+        const res  = await fetch("/postulacion", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("token")
+          },
+          body: JSON.stringify(datos)
+        });
+        const data = await res.json();
+        showToast(data.msg, res.ok ? "success" : "error");
+        if (res.ok) {
+          // Actualizar rol en localStorage y el botón del hero
+          if (data.rol) {
+            localStorage.setItem("rol", data.rol);
+            const btnRol = document.getElementById("btn-rol");
+            btnRol.innerHTML = "<span>Crear servicio</span>";
+            btnRol.onclick = () => window.location = "/empleado";
+          }
+          document.getElementById("modal-postulacion").style.display = "none";
+          form.reset();
+        }
+      } catch {
+        showToast("Error de conexión. Intenta de nuevo.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Enviar postulación";
+      }
+    }
+
+    document.getElementById("form-postulacion").addEventListener("submit", (e) => {
+      e.preventDefault();
+      postularse();
+    });
+
+    // Mostrar/ocultar campo punto físico según modalidad
+    document.getElementById("post-modalidad").addEventListener("change", (e) => {
+      const campo = document.getElementById("campo-punto-fisico");
+      const input = document.getElementById("post-punto");
+      const necesita = e.target.value === "presencial" || e.target.value === "ambas";
+      campo.style.display = necesita ? "block" : "none";
+      input.required = necesita;
+      if (!necesita) input.value = "";
+    });
+
+    function cerrarSesion() {
+      localStorage.clear();
+      showToast("Sesión cerrada correctamente.", "info");
+      setTimeout(() => window.location.reload(), 1200);
+    }
+
+    document.getElementById("btn-logout").addEventListener("click", cerrarSesion);
+
+    // ── Hamburguesa ──
+    const toggle = document.getElementById("nav-toggle");
+    const links  = document.getElementById("nav-links");
+    toggle.addEventListener("click", () => {
+      const open = links.classList.toggle("open");
+      toggle.classList.toggle("open", open);
+      toggle.setAttribute("aria-expanded", open);
+    });
+    links.querySelectorAll("a, button").forEach(el => {
+      el.addEventListener("click", () => {
+        links.classList.remove("open");
+        toggle.classList.remove("open");
+        toggle.setAttribute("aria-expanded", false);
+      });
+    });
+
+    // ── Link activo en nav ──
+    const path = window.location.pathname;
+    document.querySelectorAll(".nav-links li a").forEach(a => {
+      const href = a.getAttribute("href");
+      if (href && href !== "#" && !a.classList.contains("btn-accent") && !a.classList.contains("btn-outline")) {
+        if (path === href || (href !== "/" && path.startsWith(href))) {
+          a.classList.add("nav-active");
+        }
+      }
+    });
+
+    // ── Scroll reveal ──
+    if ("IntersectionObserver" in window) {
+      const ro = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); ro.unobserve(e.target); } });
+      }, { threshold: 0.1 });
+      document.querySelectorAll(".article-inner, .mv-pills").forEach(el => { el.classList.add("reveal"); ro.observe(el); });
+    }
+
+    // ── Contadores animados ──
+    window.addEventListener("load", () => {
+      document.querySelectorAll(".hero-stat-num[data-target]").forEach(el => {
+        const target = +el.dataset.target;
+        const suffix = el.dataset.suffix || "";
+        const dur = 1600;
+        const start = performance.now();
+        const tick = now => {
+          const p = Math.min((now - start) / dur, 1);
+          const ease = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(ease * target) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+    });
+  </script>
+</body>
+</html>
